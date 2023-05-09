@@ -11,19 +11,19 @@ DirectSound::~DirectSound() {
 /// </summary>
 /// <param name="window">音を出すウィンドウを指定</param>
 void DirectSound::Initialize(WinApp* window) { 
-		hr = DirectSoundCreate8(
-	    NULL,             // サウンドデバイスを表すGUID　NULLの場合標準のデバイス
-	    &soundInterFace_, // 生成したDirectSound保存先
-	    NULL              // NULL固定
-	);
-	assert(SUCCEEDED(hr));
-	//協調レベルを設定
-	hr = soundInterFace_->SetCooperativeLevel(
-	    window->GetHwnd(), // ウィンドウの指定
-	    DSSCL_NORMAL // 標準協調レベル
-	);
-	assert(SUCCEEDED(hr));
-	
+		if (FAILED(hr = CoInitializeEx(NULL, COINIT_MULTITHREADED))) {
+		Log("CoInitializeEx");
+		}
+	    UINT32 flags = 0;
+#ifdef _DEBUG
+	    flags |= XAUDIO2_DEBUG_ENGINE;
+#endif
+	    if (FAILED(hr = XAudio2Create(&xaudio, flags))) {
+		Log("XAudio2Create");
+	    }
+	    if (FAILED(hr = xaudio->CreateMasteringVoice(&mastering_voice))) {
+	    Log("CreateMasteringVoice");
+		}
 	
 }
 
@@ -135,7 +135,19 @@ void DirectSound::LoadAudio(const std::string& fileName) {
 }
 
 void DirectSound::PlayAudio() { 
-	soundData.buffer->Play(0, 1, 0);
+	 
+}
+
+void DirectSound::Reset() {
+	if (mastering_voice != 0) {
+		mastering_voice->DestroyVoice();
+		mastering_voice = 0;
+	}
+	if (xaudio != 0) {
+		xaudio->Release();
+		xaudio = 0;
+	}
+	CoUninitialize();
 }
 
 void DirectSound::Log(const std::string& message) { 
