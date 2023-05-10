@@ -14,26 +14,35 @@
 #include <unordered_map>
 class DirectSound {
 public:
+	enum SoundFile {
+		TestBGM,
+		TestSE,
+		SoundFileMax,
+	};
+	struct WavData {
+		WAVEFORMATEX WavFormat;
+		char* SoundBuffer;
+		DWORD Size;
+	};
+
+
 	DirectSound();
 	~DirectSound();
 
 	void Initialize(WinApp* window);
-	
-	void LoadAudio(LPWSTR fileName);
+	bool LoadFile(SoundFile file_id, const wchar_t* file_name);
+	bool LoadAudio(const wchar_t* fileName, WavData* out_wave_data);
 
-	void PlayAudio();
+	void PlayAudio(SoundFile file_id, bool is_loop);
 	
 	
 	
 private:
 	//
 	void Log(const std::string& message);
-	std::wstring ConvertString(const std::string& str);
 	HRESULT hr = 0;
 	//インターフェイスの保存先
 	LPDIRECTSOUND8 soundInterFace_=nullptr;
-
-	HMMIO mmioHandle;
 
 	// 波形データ
 	//std::unordered_map < std::string, SoundData> waveFormData;

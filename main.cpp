@@ -62,7 +62,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//DirectSound初期化
 	directSound = new DirectSound();
 	directSound->Initialize(win);
-	directSound->LoadAudio("./Resources/fanfare.wav");
+
+	directSound->LoadFile(DirectSound::SoundFile::TestBGM,L"./Resources/fanfare.wav");
 	
 
 	// ゲームシーンの初期化
@@ -88,9 +89,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// 描画開始
 		dxCommon->PreDraw();
-
-		directSound->PlayAudio();
-
+		directSound->PlayAudio(DirectSound::SoundFile::TestBGM, 1);
 		// ゲームシーンの描画
 		gameScene->Draw();
 		// 軸表示の描画
