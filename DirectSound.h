@@ -12,6 +12,7 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include<array>
 class DirectSound {
 public:
 	DirectSound();
@@ -51,7 +52,7 @@ public:
 	typedef struct {
 		char ID[4];//チャンクID
 		long size;//DATAチャンクのサイズ
-		short data;//波形データ
+		std::vector<float> data; // 波形データ
 	} DATA_CHUNK;
 	// dataチャンクの定義
 

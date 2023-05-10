@@ -76,9 +76,13 @@ void DirectSound::LoadAudio(const std::string& fileName) {
 	//fread_s(expansion.data(), sizeof(char) * expansion.size(), sizeof(char) * expansion.size(), 1,file);
 	
 	//dataチャンク読み込み
-	//fread(waveFormat.dataChunk.ID, 1, 4, file);
-	//fread(&waveFormat.dataChunk.size, 4, 1, file);
-	fread_s(&waveFormat.dataChunk, sizeof(DATA_CHUNK), sizeof(DATA_CHUNK), 1, file);
+
+	fread(waveFormat.dataChunk.ID, 1, 4, file);
+	fread(&waveFormat.dataChunk.size, 4, 1, file);
+	for (int i = 0; i < waveFormat.dataChunk.size; i++) {
+		fread(&waveFormat.dataChunk.data,2,1,file);
+	}
+	//fread_s(&waveFormat.dataChunk, sizeof(DATA_CHUNK), sizeof(DATA_CHUNK), 1, file);
 	std::string id3(&waveFormat.dataChunk.ID[0], sizeof(waveFormat.dataChunk.ID));
 	if (id3 != "data") {
 		Log("failed");
@@ -90,7 +94,7 @@ void DirectSound::LoadAudio(const std::string& fileName) {
 	fclose(file);
 
 	// セカンダリバッファの情報設定
-	WAVEFORMATEX Info;
+	WAVEFORMATEX Info{};
 	Info.wFormatTag=waveFormat.fmtChunk.waveFormatType;
 	Info.nChannels=waveFormat.fmtChunk.channel;
 	Info.nSamplesPerSec=waveFormat.fmtChunk.sample;
@@ -98,7 +102,7 @@ void DirectSound::LoadAudio(const std::string& fileName) {
 	Info.nBlockAlign=waveFormat.fmtChunk.block;
 	Info.nAvgBytesPerSec=waveFormat.fmtChunk.byte;
 	Info.cbSize=0;
-	DSBUFFERDESC dsBufferDesc;
+	DSBUFFERDESC dsBufferDesc{};
 	dsBufferDesc.dwSize = sizeof(DSBUFFERDESC);
 	dsBufferDesc.dwFlags = 0;
 	dsBufferDesc.dwBufferBytes = Info.nSamplesPerSec * Info.wBitsPerSample*Info.nChannels;
@@ -109,12 +113,13 @@ void DirectSound::LoadAudio(const std::string& fileName) {
 
 	LPVOID buffer;
 	DWORD bufferSize;
-	if (FAILED(soundData.buffer->Lock(0, sizeof(waveFormat.dataChunk.data), &buffer, &bufferSize, NULL, NULL, 0))) {
+	if (FAILED(soundData.buffer->Lock(
+	        0,waveFormat.dataChunk.size, &buffer, &bufferSize, NULL, NULL, 0))) {
 		Log("Lock failed");
 		return;
 	}
-	memcpy(buffer, &waveFormat.dataChunk.data, bufferSize);
-	soundData.buffer->Unlock(buffer,bufferSize,NULL,0);
+	memcpy(buffer, &waveFormat.dataChunk.data, sizeof(waveFormat.dataChunk.data));
+	soundData.buffer->Unlock(&buffer,bufferSize,NULL,0);
 	
 
 	/*IDirectSoundBuffer* tmpBuffer = 0;
@@ -135,7 +140,7 @@ void DirectSound::LoadAudio(const std::string& fileName) {
 }
 
 void DirectSound::PlayAudio() { 
-	soundData.buffer->Play(0, 1, 0);
+	soundData.buffer->Play(0, 0, 0);
 }
 
 void DirectSound::Log(const std::string& message) { 
