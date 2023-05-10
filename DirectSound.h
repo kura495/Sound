@@ -11,6 +11,7 @@
 #include <unordered_map>
 class DirectSound {
 public:
+
 	enum SoundFile {
 		TestBGM,
 		TestSE,
@@ -21,7 +22,6 @@ public:
 		char* SoundBuffer;
 		DWORD Size;
 	};
-
 
 	DirectSound();
 	~DirectSound();
@@ -41,8 +41,8 @@ private:
 	//インターフェイスの保存先
 	LPDIRECTSOUND8 soundInterFace_=nullptr;
 
-	// 波形データ
-	//std::unordered_map < std::string, SoundData> waveFormData;
+
+
 };
 
 

@@ -128,6 +128,7 @@ bool DirectSound::LoadAudio(const wchar_t* fileName,WavData* outWaveData) {
 		return false;
 	}
 
+
 	// fmtチャンクに入るためにIDに"fmt "を入れる
 	chankInfo.ckid = mmioFOURCC('f', 'm', 't', ' ');
 	if (MMSYSERR_NOERROR != mmioDescend(mmioHandle, &chankInfo, &RIFFchankInfo, MMIO_FINDCHUNK)) {
@@ -136,6 +137,7 @@ bool DirectSound::LoadAudio(const wchar_t* fileName,WavData* outWaveData) {
 		Log("fmt");
 		return false;
 	}
+
 
 	// fmtデータの読み込み
 	LONG read_size = mmioRead(
@@ -190,6 +192,7 @@ bool DirectSound::LoadAudio(const wchar_t* fileName,WavData* outWaveData) {
 	return true;
 }
 
+
 void DirectSound::PlayAudio(SoundFile fileID, bool is_loop) { 
 		if (SoundBufferList[fileID] == NULL) {
 			return;
@@ -203,8 +206,9 @@ void DirectSound::PlayAudio(SoundFile fileID, bool is_loop) {
 
 void DirectSound::SetPan(SoundFile fileID, int number) { 
 	SoundBufferList[fileID]->SetPan(number);
-
 }
+
+
 
 void DirectSound::Log(const std::string& message) { 
 	OutputDebugStringA(message.c_str()); 
