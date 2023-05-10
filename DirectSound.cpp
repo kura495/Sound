@@ -1,4 +1,9 @@
 #include"DirectSound.h"
+
+
+
+LPDIRECTSOUNDBUFFER SoundBufferList[DirectSound::SoundFile::SoundFileMax];
+
 DirectSound::DirectSound() {
 
 }
@@ -23,128 +28,191 @@ void DirectSound::Initialize(WinApp* window) {
 	    DSSCL_NORMAL // 標準協調レベル
 	);
 	assert(SUCCEEDED(hr));
-	
+	for (int i = 0; i < SoundFile::SoundFileMax; i++) {
+		SoundBufferList[i] = NULL;
+	}
 	
 }
 
-void DirectSound::LoadAudio(const std::string& fileName) { 
-	WAVE_FORMAT waveFormat;
-	FILE* file = nullptr;
-	if (fopen_s(&file, fileName.c_str(), "rb") != 0) {
-		Log("wav open failed\n");
-		return;
-	} else {
-		Log("wav open success\n");
-	}
-	//RIFFチャンクの読み込み
-	//fread(waveFormat.riffChunk.ID, 1, 4, file);
-	//fread(&waveFormat.riffChunk.size, 4, 1, file);
-	//fread(waveFormat.riffChunk.formatType, 1, 4, file);
-	fread_s(&waveFormat.riffChunk, sizeof(RIFF_CHUNK), sizeof(RIFF_CHUNK), 1, file);
-	std::string id(&waveFormat.riffChunk.ID[0], sizeof(waveFormat.riffChunk.ID));
-	std::string type(&waveFormat.riffChunk.formatType[0], sizeof(waveFormat.riffChunk.formatType));
-	if (id != "RIFF" || type != "WAVE") {
-		Log("failed");
-		return;
-	}
-	//Log(waveFormat.riffChunk.ID);
-	//Log("\n");
-	//Log(waveFormat.riffChunk.formatType);
-	//Log("\n");
-
-	//fmtチャンクの読み込み
-	//fread(waveFormat.fmtChunk.ID, 1, 4, file);
-	//fread(&waveFormat.fmtChunk.size, 4, 1, file);
-	//fread(&waveFormat.fmtChunk.waveFormatType, 2, 1, file);
-	//fread(&waveFormat.fmtChunk.channel, 2, 1, file);
-	//fread(&waveFormat.fmtChunk.sample, 4, 1, file);
-	//fread(&waveFormat.fmtChunk.byte, 4, 1, file);
-	//fread(&waveFormat.fmtChunk.block, 2, 1, file);
-	//fread(&waveFormat.fmtChunk.bit, 2, 1, file);
-	fread_s(&waveFormat.fmtChunk, sizeof(FMT_CHUNK), sizeof(FMT_CHUNK), 1, file);
-	//Log(waveFormat.riffChunk.ID);
-	//Log("\n");
-	//Log(waveFormat.riffChunk.formatType);
-	//Log("\n");
-	std::string id2(&waveFormat.fmtChunk.ID[0], sizeof(waveFormat.fmtChunk.ID));
-	if (id2 != "fmt ") {
-		Log("failed");
-		return;
-	}
-	//FMTチャンクに拡張部分がある場合がある
-	//std::vector<char> expansion(waveFormat.fmtChunk.size -( sizeof(waveFormat.fmtChunk) - sizeof(waveFormat.fmtChunk.ID) - sizeof(waveFormat.fmtChunk.size)));
-	//fread_s(expansion.data(), sizeof(char) * expansion.size(), sizeof(char) * expansion.size(), 1,file);
+bool DirectSound::LoadFile(SoundFile fileID, const wchar_t* fileName) { 
 	
-	//dataチャンク読み込み
+	WavData wavData;
 
-	fread(waveFormat.dataChunk.ID, 1, 4, file);
-	fread(&waveFormat.dataChunk.size, 4, 1, file);
-	for (int i = 0; i < waveFormat.dataChunk.size; i++) {
-		fread(&waveFormat.dataChunk.data,2,1,file);
+	if (LoadAudio(fileName, &wavData) == false) {
+		Log("LoadAudio failed");
+		return false;
 	}
-	//fread_s(&waveFormat.dataChunk, sizeof(DATA_CHUNK), sizeof(DATA_CHUNK), 1, file);
-	std::string id3(&waveFormat.dataChunk.ID[0], sizeof(waveFormat.dataChunk.ID));
-	if (id3 != "data") {
-		Log("failed");
-		return;
-	}
-	/*soundData.sample = waveFormat.fmtChunk.sample;
-	soundData.bit = waveFormat.fmtChunk.bit;
-	soundData.channel=waveFormat*/
-	fclose(file);
 
-	// セカンダリバッファの情報設定
-	WAVEFORMATEX Info{};
-	Info.wFormatTag=waveFormat.fmtChunk.waveFormatType;
-	Info.nChannels=waveFormat.fmtChunk.channel;
-	Info.nSamplesPerSec=waveFormat.fmtChunk.sample;
-	Info.wBitsPerSample=waveFormat.fmtChunk.bit;
-	Info.nBlockAlign=waveFormat.fmtChunk.block;
-	Info.nAvgBytesPerSec=waveFormat.fmtChunk.byte;
-	Info.cbSize=0;
-	DSBUFFERDESC dsBufferDesc{};
-	dsBufferDesc.dwSize = sizeof(DSBUFFERDESC);
-	dsBufferDesc.dwFlags = 0;
-	dsBufferDesc.dwBufferBytes = Info.nSamplesPerSec * Info.wBitsPerSample*Info.nChannels;
-	dsBufferDesc.dwReserved = 0;
-	dsBufferDesc.lpwfxFormat = &Info;
-	dsBufferDesc.guid3DAlgorithm = GUID_NULL;
-	soundInterFace_->CreateSoundBuffer(&dsBufferDesc, &SoundBufferList, NULL);
-	LPVOID buffer;
-	DWORD bufferSize;
-	if (FAILED(SoundBufferList->Lock(
-	        0,waveFormat.dataChunk.size, &buffer, &bufferSize, NULL, NULL, 0))) {
-		Log("Lock failed");
-		return;
-	}
-	memcpy(buffer, waveFormat.dataChunk.data, bufferSize);
-	SoundBufferList->Unlock(&buffer, bufferSize, NULL, 0);
-
-	/*IDirectSoundBuffer* tmpBuffer = 0;
-	IDirectSoundBuffer8* DSBuffer;
-	soundInterFace_->CreateSoundBuffer(&dsBufferDesc, &tmpBuffer, NULL);
-	tmpBuffer->QueryInterface(IID_IDirectSoundBuffer8, (void**)&DSBuffer);
-	tmpBuffer->Release();
+	// バッファ情報の設定
+	DSBUFFERDESC dsBufferDesc;
+	ZeroMemory(&dsBufferDesc, sizeof(DSBUFFERDESC));
 	dsBufferDesc.dwSize = sizeof(DSBUFFERDESC);
 	dsBufferDesc.dwFlags = DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME;
-	dsBufferDesc.dwBufferBytes = waveFormat.dataChunk.size;
-	LPVOID lpvWrite = 0;
-	DWORD dwLength = 0;
-	if (DS_OK == DSBuffer->Lock(0, 0, &lpvWrite, &dwLength, NULL, NULL, DSBLOCK_ENTIREBUFFER)) {
-		memccpy(lpvWrite,waveFormat.dataChunk.,)
-	}*/
+	dsBufferDesc.dwBufferBytes = wavData.Size;
+	dsBufferDesc.guid3DAlgorithm = DS3DALG_DEFAULT;
+	dsBufferDesc.lpwfxFormat = &wavData.WavFormat;
 	
+	// セカンダリバッファ作成
+	if (FAILED(soundInterFace_->CreateSoundBuffer(
+	        &dsBufferDesc,                       // バッファ情報
+	        &SoundBufferList[fileID], // 作成されたバッファの保存先
+	        NULL))) {
+		// 作成失敗
+		delete[] wavData.SoundBuffer;
+		return false;
+	}
+
+	// 波形データを書き込むためにセカンダリバッファをロックする
+	void* buffer;
+	DWORD buffer_size;
+	if (FAILED(SoundBufferList[fileID]->Lock(
+	        0,             // オフセット
+	        wavData.Size, // ロックするバッファサイズ
+	        &buffer,       // ロックされたバッファパート１の保存先
+	        &buffer_size,  // ロックされたバッファパート１のサイズ
+	        NULL,          // ロックされたバッファパート２の保存先
+	        NULL,          // ロックされたバッファパート２のサイズ
+	        0)))           // ロックオプション
+	{
+		// ロック失敗
+		delete[] wavData.SoundBuffer;
+		return false;
+	}
 	
+	memcpy(buffer, wavData.SoundBuffer, buffer_size);
+
+	SoundBufferList[fileID]->Unlock(
+	    &buffer,     // アンロックするバッファパート１
+	    buffer_size, // パート１のバッファサイズ
+	    NULL,        // アンロックするバッファパート２
+	    NULL);       // パート２のバッファサイズ
+
+	// コピーが終わったのでサウンドデータを解放
+	delete[] wavData.SoundBuffer;
 }
 
-void DirectSound::PlayAudio() { 
-	SoundBufferList->Play(0, 0, 0);
+bool DirectSound::LoadAudio(const wchar_t* fileName,WavData* outWaveData) { 
+	// WindowsマルチメディアAPIのハンドル
+	HMMIO mmioHandle = NULL;
+
+	// チャンク情報
+	MMCKINFO chankInfo;
+	// RIFFチャンク用
+	MMCKINFO RIFFchankInfo;
+
+	// WAVファイル内音サンプルのサイズ
+	//DWORD dwWavSize = 0;
+	mmioHandle = mmioOpen(
+	   (LPWSTR)fileName, // ファイル名
+	    NULL,             // MMIO情報
+	    MMIO_READ);       // モード
+	if (mmioHandle == NULL) {
+		Log("open failed");
+		return false;
+	}
+	
+
+	// RIFFチャンクに進入するためにfccTypeにWAVEを設定する
+	RIFFchankInfo.fccType = mmioFOURCC('W', 'A', 'V', 'E');
+
+	// RIFFチャンクに入る
+	if (MMSYSERR_NOERROR != mmioDescend(
+	                            mmioHandle,    // MMIOハンドル
+	                            &RIFFchankInfo,   // 取得したチャンクの情報
+	                            NULL,           // 親チャンク
+	                            MMIO_FINDRIFF)) // 取得情報の種類
+	{
+		// 失敗
+		mmioClose(mmioHandle, MMIO_FHOPEN);
+		Log("RIFF");
+		return false;
+	}
+
+
+	// fmtチャンクに入るためにIDに"fmt "を入れる
+	chankInfo.ckid = mmioFOURCC('f', 'm', 't', ' ');
+	if (MMSYSERR_NOERROR != mmioDescend(mmioHandle, &chankInfo, &RIFFchankInfo, MMIO_FINDCHUNK)) {
+		// fmtチャンクがない
+		mmioClose(mmioHandle, MMIO_FHOPEN);
+		Log("fmt");
+		return false;
+	}
+
+
+	// fmtデータの読み込み
+	LONG read_size = mmioRead(
+	    mmioHandle,                       // ハンドル
+	    (HPSTR)&outWaveData->WavFormat,  // 読み込み用バッファ
+	    sizeof(outWaveData->WavFormat)); // バッファサイズ
+
+	if (read_size != sizeof(outWaveData->WavFormat)) {
+		// 読み込みサイズが一致してないのでエラー
+		mmioClose(mmioHandle, MMIO_FHOPEN);
+		Log("fmt");
+		return false;
+	}
+
+	// フォーマットチェック
+	if (outWaveData->WavFormat.wFormatTag != WAVE_FORMAT_PCM) {
+		// フォーマットエラー
+		mmioClose(mmioHandle, MMIO_FHOPEN);
+		return false;
+	}
+
+	// fmtチャンクを退出する
+	if (mmioAscend(mmioHandle, &chankInfo, 0) != MMSYSERR_NOERROR) {
+		mmioClose(mmioHandle, MMIO_FHOPEN);
+		return false;
+	}
+
+	// dataチャンクに進入する
+	chankInfo.ckid = mmioFOURCC('d', 'a', 't', 'a');
+	if (mmioDescend(mmioHandle, &chankInfo, &RIFFchankInfo, MMIO_FINDCHUNK) != MMSYSERR_NOERROR) {
+		// 進入失敗
+		mmioClose(mmioHandle, MMIO_FHOPEN);
+		Log("data");
+		return false;
+	}
+
+	// サイズを保存
+	outWaveData->Size = chankInfo.cksize;
+
+	// dataチャンク読み込み
+	outWaveData->SoundBuffer = new char[chankInfo.cksize];
+	read_size = mmioRead(mmioHandle, (HPSTR)outWaveData->SoundBuffer, chankInfo.cksize);
+	if (read_size != chankInfo.cksize) {
+		mmioClose(mmioHandle, MMIO_FHOPEN);
+		delete[] outWaveData->SoundBuffer;
+		Log("data");
+		return false;
+	}
+
+	// ファイルを閉じる
+	mmioClose(mmioHandle, MMIO_FHOPEN);
+	return true;
 }
+
+
+void DirectSound::PlayAudio(SoundFile fileID, bool is_loop) { 
+		if (SoundBufferList[fileID] == NULL) {
+			return;
+		}
+
+		int loop_bit = is_loop == true ? 1 : 0;
+		// 再生
+		SoundBufferList[fileID]->Play(0, 0, DSBPLAY_LOOPING & loop_bit);
+	   
+}
+
+void DirectSound::SetPan(SoundFile fileID, int number) { 
+	SoundBufferList[fileID]->SetPan(number);
+}
+
+
 
 void DirectSound::Log(const std::string& message) { 
 	OutputDebugStringA(message.c_str()); 
 }
-
 
 
 

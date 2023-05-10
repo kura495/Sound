@@ -62,8 +62,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//DirectSound初期化
 	directSound = new DirectSound();
 	directSound->Initialize(win);
-	directSound->LoadAudio("./Resources/fanfare.wav");
-	
+
+	directSound->LoadFile(DirectSound::SoundFile::TestBGM,L"./Resources/mokugyo.wav");
+
+	POINT MouseCurcor;
+	int PAN=0;
 
 	// ゲームシーンの初期化
 	gameScene = new GameScene();
@@ -81,6 +84,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		input->Update();
 		// ゲームシーンの毎フレーム処理
 		gameScene->Update();
+
+		GetCursorPos(&MouseCurcor);
+		MouseCurcor.x -= 640;
+		PAN = MouseCurcor.x*10;
+		if (PAN > 10000) {
+			PAN = 10000;
+		} else if (PAN < -10000) {
+			PAN = -10000;
+		}
+		//DSBPAN_LEFT -10000 右チャンネルが100デシベル分減衰する　右が無音になる
+		//DSBPAN_RIGHT 10000 左チャンネルが100デシベル分減衰する　左が無音になる
+		//DSBPAN_CENTER 0 両方のチャンネルから音が出る
+		directSound->SetPan(DirectSound::SoundFile::TestBGM, PAN);
+		//再生
+		directSound->PlayAudio(DirectSound::SoundFile::TestBGM, 1);
+		
+
 		// 軸表示の更新
 		axisIndicator->Update();
 		// ImGui受付終了
@@ -88,9 +108,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// 描画開始
 		dxCommon->PreDraw();
-
-		directSound->PlayAudio();
-
+		
 		// ゲームシーンの描画
 		gameScene->Draw();
 		// 軸表示の描画
