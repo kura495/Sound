@@ -18,17 +18,10 @@ public:
 	DirectSound();
 	~DirectSound();
 
-	struct SoundData {
-		//サンプリング周波数
-		unsigned short sample;
-		//量子化ビット数
-		unsigned char bit;
-		//チャンネル数
-		unsigned char channel;
-		//バッファ(dataチャンクデータ)
-		LPDIRECTSOUNDBUFFER buffer;
-		//ファイル名
-		std::string name;
+	struct WavData {
+		WAVEFORMATEX WavFormat;
+		char* SoundBuffer;
+		DWORD Size;
 	};
 	typedef struct {
 		char ID[4];//チャンクID
@@ -83,6 +76,7 @@ private:
 	//std::unordered_map < std::string, SoundData> waveFormData;
 	SoundData soundData;
 	LPDIRECTSOUNDBUFFER SoundBufferList;
+	WavData wavData;
 };
 
 
