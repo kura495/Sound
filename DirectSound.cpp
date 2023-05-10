@@ -109,8 +109,7 @@ void DirectSound::LoadAudio(const std::string& fileName) {
 	dsBufferDesc.dwReserved = 0;
 	dsBufferDesc.lpwfxFormat = &Info;
 	dsBufferDesc.guid3DAlgorithm = GUID_NULL;
-	soundInterFace_->CreateSoundBuffer(&dsBufferDesc, wavData.SoundBuffer, NULL);
-
+	soundInterFace_->CreateSoundBuffer(&dsBufferDesc, &SoundBufferList, NULL);
 	LPVOID buffer;
 	DWORD bufferSize;
 	if (FAILED(soundData.buffer->Lock(
