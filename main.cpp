@@ -63,8 +63,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	directSound = new DirectSound();
 	directSound->Initialize(win);
 
-	directSound->LoadFile(DirectSound::SoundFile::TestBGM,L"./Resources/fanfare.wav");
-	
+	directSound->LoadFile(DirectSound::SoundFile::TestBGM,L"./Resources/mokugyo.wav");
+
+	POINT MouseCurcor;
+	int PAN=0;
 
 	// ゲームシーンの初期化
 	gameScene = new GameScene();
@@ -82,6 +84,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		input->Update();
 		// ゲームシーンの毎フレーム処理
 		gameScene->Update();
+
+		GetCursorPos(&MouseCurcor);
+		
+		//DSBPAN_LEFT -10000 右チャンネルが100デシベル分減衰する　右が無音になる
+		//DSBPAN_RIGHT 10000 左チャンネルが100デシベル分減衰する　左が無音になる
+		//DSBPAN_CENTER 0 両方のチャンネルから音が出る
+		directSound->SetPan(DirectSound::SoundFile::TestBGM, PAN);
+
+		directSound->PlayAudio(DirectSound::SoundFile::TestBGM, 1);
+
 		// 軸表示の更新
 		axisIndicator->Update();
 		// ImGui受付終了
@@ -89,12 +101,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// 描画開始
 		dxCommon->PreDraw();
-		//DSPAN_LEFT -10000 右チャンネルが100デシベル分減衰する　右が無音になる
-		//DSPAN_RIGHT 10000 左チャンネルが100デシベル分減衰する　左が無音になる
-		//DSBPAN_CENTER 0 両方のチャンネルから音が出る
-		directSound->SetPan(DirectSound::SoundFile::TestBGM,DSBPAN_CENTER);
-
-		directSound->PlayAudio(DirectSound::SoundFile::TestBGM, 1);
+		
 		// ゲームシーンの描画
 		gameScene->Draw();
 		// 軸表示の描画

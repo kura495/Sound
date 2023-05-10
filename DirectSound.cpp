@@ -115,7 +115,7 @@ bool DirectSound::LoadAudio(const wchar_t* fileName,WavData* outWaveData) {
 	// RIFFチャンクに進入するためにfccTypeにWAVEを設定する
 	RIFFchankInfo.fccType = mmioFOURCC('W', 'A', 'V', 'E');
 
-	// RIFFチャンクに侵入する
+	// RIFFチャンクに入る
 	if (MMSYSERR_NOERROR != mmioDescend(
 	                            mmioHandle,    // MMIOハンドル
 	                            &RIFFchankInfo,   // 取得したチャンクの情報
@@ -128,7 +128,7 @@ bool DirectSound::LoadAudio(const wchar_t* fileName,WavData* outWaveData) {
 		return false;
 	}
 
-	// 進入先のチャンクを"fmt "として設定する
+	// fmtチャンクに入るためにIDに"fmt "を入れる
 	chankInfo.ckid = mmioFOURCC('f', 'm', 't', ' ');
 	if (MMSYSERR_NOERROR != mmioDescend(mmioHandle, &chankInfo, &RIFFchankInfo, MMIO_FINDCHUNK)) {
 		// fmtチャンクがない
