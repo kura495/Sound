@@ -117,7 +117,7 @@ void DirectSound::LoadAudio(const std::string& fileName) {
 		Log("Lock failed");
 		return;
 	}
-	memcpy(buffer, &waveFormat.dataChunk.data, sizeof(waveFormat.dataChunk.data));
+	memcpy(buffer, waveFormat.dataChunk.data, sizeof(waveFormat.dataChunk.data));
 	SoundBufferList->Unlock(&buffer, bufferSize, NULL, 0);
 	
 
