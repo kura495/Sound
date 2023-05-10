@@ -87,7 +87,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		GetCursorPos(&MouseCurcor);
 		MouseCurcor.x -= 640;
-		PAN = MouseCurcor.x*500;
+		PAN = MouseCurcor.x*10;
 		if (PAN > 10000) {
 			PAN = 10000;
 		} else if (PAN < -10000) {
