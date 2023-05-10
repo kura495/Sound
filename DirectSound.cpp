@@ -112,13 +112,13 @@ void DirectSound::LoadAudio(const std::string& fileName) {
 	soundInterFace_->CreateSoundBuffer(&dsBufferDesc, &SoundBufferList, NULL);
 	LPVOID buffer;
 	DWORD bufferSize;
-	if (FAILED(soundData.buffer->Lock(
+	if (FAILED(SoundBufferList->Lock(
 	        0,waveFormat.dataChunk.size, &buffer, &bufferSize, NULL, NULL, 0))) {
 		Log("Lock failed");
 		return;
 	}
 	memcpy(buffer, &waveFormat.dataChunk.data, sizeof(waveFormat.dataChunk.data));
-	soundData.buffer->Unlock(&buffer,bufferSize,NULL,0);
+	SoundBufferList->Unlock(&buffer, bufferSize, NULL, 0);
 	
 
 	/*IDirectSoundBuffer* tmpBuffer = 0;
