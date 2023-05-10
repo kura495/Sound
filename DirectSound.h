@@ -82,6 +82,7 @@ private:
 	// 波形データ
 	//std::unordered_map < std::string, SoundData> waveFormData;
 	SoundData soundData;
+	LPDIRECTSOUNDBUFFER SoundBufferList;
 };
 
 
