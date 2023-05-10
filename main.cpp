@@ -86,13 +86,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		gameScene->Update();
 
 		GetCursorPos(&MouseCurcor);
-		
+		MouseCurcor.x -= 640;
+		PAN = MouseCurcor.x*500;
+		if (PAN > 10000) {
+			PAN = 10000;
+		} else if (PAN < -10000) {
+			PAN = -10000;
+		}
 		//DSBPAN_LEFT -10000 右チャンネルが100デシベル分減衰する　右が無音になる
 		//DSBPAN_RIGHT 10000 左チャンネルが100デシベル分減衰する　左が無音になる
 		//DSBPAN_CENTER 0 両方のチャンネルから音が出る
 		directSound->SetPan(DirectSound::SoundFile::TestBGM, PAN);
-
+		//再生
 		directSound->PlayAudio(DirectSound::SoundFile::TestBGM, 1);
+		
 
 		// 軸表示の更新
 		axisIndicator->Update();

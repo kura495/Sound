@@ -8,9 +8,6 @@
 #include<mmsystem.h>
 #include"dsound.h"
 #include<cassert>
-#include <string>
-#include <vector>
-#include <memory>
 #include <unordered_map>
 class DirectSound {
 public:
