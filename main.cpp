@@ -89,6 +89,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// 描画開始
 		dxCommon->PreDraw();
+		//DSPAN_LEFT -10000 右チャンネルが100デシベル分減衰する　右が無音になる
+		//DSPAN_RIGHT 10000 左チャンネルが100デシベル分減衰する　左が無音になる
+		directSound->SetPan(DirectSound::SoundFile::TestBGM,DSBPAN_RIGHT);
+
 		directSound->PlayAudio(DirectSound::SoundFile::TestBGM, 1);
 		// ゲームシーンの描画
 		gameScene->Draw();

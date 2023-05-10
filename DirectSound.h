@@ -30,12 +30,12 @@ public:
 	~DirectSound();
 
 	void Initialize(WinApp* window);
-	bool LoadFile(SoundFile file_id, const wchar_t* file_name);
-	bool LoadAudio(const wchar_t* fileName, WavData* out_wave_data);
+	bool LoadFile(SoundFile fileID, const wchar_t* fileName);
+	bool LoadAudio(const wchar_t* fileName, WavData* outWaveData);
 
-	void PlayAudio(SoundFile file_id, bool is_loop);
+	void PlayAudio(SoundFile fileID, bool is_loop);
 	
-	
+	void SetPan(SoundFile fileID, int number);
 	
 private:
 	//
