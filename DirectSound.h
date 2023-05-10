@@ -52,7 +52,7 @@ public:
 	typedef struct {
 		char ID[4];//チャンクID
 		long size;//DATAチャンクのサイズ
-		std::vector<float> data; // 波形データ
+		LPDIRECTSOUNDBUFFER data; // 波形データ
 	} DATA_CHUNK;
 	// dataチャンクの定義
 
