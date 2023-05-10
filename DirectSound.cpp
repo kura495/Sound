@@ -2,7 +2,7 @@
 
 
 
-LPDIRECTSOUNDBUFFER SoundBufferList[DirectSound::SoundFile::SoundFileMax];
+
 
 DirectSound::DirectSound() {
 
@@ -16,6 +16,7 @@ DirectSound::~DirectSound() {
 /// </summary>
 /// <param name="window">音を出すウィンドウを指定</param>
 void DirectSound::Initialize(WinApp* window) { 
+
 		hr = DirectSoundCreate8(
 	    NULL,             // サウンドデバイスを表すGUID　NULLの場合標準のデバイス
 	    &soundInterFace_, // 生成したDirectSound保存先
@@ -28,6 +29,7 @@ void DirectSound::Initialize(WinApp* window) {
 	    DSSCL_NORMAL // 標準協調レベル
 	);
 	assert(SUCCEEDED(hr));
+
 	for (int i = 0; i < SoundFile::SoundFileMax; i++) {
 		SoundBufferList[i] = NULL;
 	}

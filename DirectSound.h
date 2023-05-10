@@ -8,13 +8,11 @@
 #include<mmsystem.h>
 #include"dsound.h"
 #include<cassert>
-#include <unordered_map>
 class DirectSound {
 public:
 
 	enum SoundFile {
 		TestBGM,
-		TestSE,
 		SoundFileMax,
 	};
 	struct WavData {
@@ -37,11 +35,13 @@ public:
 private:
 	//
 	void Log(const std::string& message);
+
 	HRESULT hr = 0;
-	//インターフェイスの保存先
+	//インターフェースの保存先
 	LPDIRECTSOUND8 soundInterFace_=nullptr;
 
-
+	//セカンダリバッファ格納場所
+	LPDIRECTSOUNDBUFFER SoundBufferList[DirectSound::SoundFile::SoundFileMax];
 
 };
 
