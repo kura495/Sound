@@ -86,7 +86,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		gameScene->Update();
 
 		GetCursorPos(&MouseCurcor);
-		MouseCurcor.x -= 640;
+		MouseCurcor.x -= 640;//画面の中心を0にしたい
 		PAN = MouseCurcor.x*10;
 		if (PAN > 10000) {
 			PAN = 10000;

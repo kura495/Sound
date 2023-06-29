@@ -15,6 +15,7 @@ public:
 		TestBGM,
 		SoundFileMax,
 	};
+
 	struct WavData {
 		WAVEFORMATEX WavFormat;
 		char* SoundBuffer;

@@ -94,6 +94,7 @@ bool DirectSound::LoadFile(SoundFile fileID, const wchar_t* fileName) {
 }
 
 bool DirectSound::LoadAudio(const wchar_t* fileName,WavData* outWaveData) { 
+
 	// WindowsマルチメディアAPIのハンドル
 	HMMIO mmioHandle = NULL;
 
@@ -102,8 +103,7 @@ bool DirectSound::LoadAudio(const wchar_t* fileName,WavData* outWaveData) {
 	// RIFFチャンク用
 	MMCKINFO RIFFchankInfo;
 
-	// WAVファイル内音サンプルのサイズ
-	//DWORD dwWavSize = 0;
+	//ファイルを開く
 	mmioHandle = mmioOpen(
 	   (LPWSTR)fileName, // ファイル名
 	    NULL,             // MMIO情報
@@ -116,7 +116,6 @@ bool DirectSound::LoadAudio(const wchar_t* fileName,WavData* outWaveData) {
 
 	// RIFFチャンクに進入するためにfccTypeにWAVEを設定する
 	RIFFchankInfo.fccType = mmioFOURCC('W', 'A', 'V', 'E');
-
 	// RIFFチャンクに入る
 	if (MMSYSERR_NOERROR != mmioDescend(
 	                            mmioHandle,    // MMIOハンドル
@@ -201,13 +200,16 @@ void DirectSound::PlayAudio(SoundFile fileID, bool is_loop) {
 		}
 
 		int loop_bit = is_loop == true ? 1 : 0;
+
 		// 再生
-		SoundBufferList[fileID]->Play(0, 0, DSBPLAY_LOOPING & loop_bit);
+		SoundBufferList[fileID]->Play(0, 0, 1);
 	   
 }
 
 void DirectSound::SetPan(SoundFile fileID, int number) { 
+
 	SoundBufferList[fileID]->SetPan(number);
+
 }
 
 
