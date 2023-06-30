@@ -1,16 +1,5 @@
 #include"DirectSound.h"
 
-
-
-
-
-DirectSound::DirectSound() {
-
-}
-
-DirectSound::~DirectSound() {
-
-}
 /// <summary>
 /// DirectSoundの初期化
 /// </summary>

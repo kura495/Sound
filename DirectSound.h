@@ -21,10 +21,6 @@ public:
 		char* SoundBuffer;
 		DWORD Size;
 	};
-
-	DirectSound();
-	~DirectSound();
-
 	void Initialize(WinApp* window);
 	bool LoadFile(SoundFile fileID, const wchar_t* fileName);
 	bool LoadAudio(const wchar_t* fileName, WavData* outWaveData);
