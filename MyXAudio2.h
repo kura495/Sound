@@ -11,9 +11,9 @@ class MyXAudio2 {
 public:
 
 	void Initialize();
-	int LoadAudio(const char& filePath);
+	int LoadAudio(const wchar_t* filePath);
 	void Release();
-
+	void Play(int AudioInDex);
 
 private:
 	static const int kMaxAudio = 8;

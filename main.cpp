@@ -7,6 +7,7 @@
 #include "TextureManager.h"
 #include "WinApp.h"
 #include"DirectSound.h"
+#include"MyXAudio2.h"
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -19,7 +20,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	PrimitiveDrawer* primitiveDrawer = nullptr;
 	GameScene* gameScene = nullptr;
 	//DirectSound
-	DirectSound* directSound=nullptr;
+	//DirectSound* directSound=nullptr;
 	
 	// ゲームウィンドウの作成
 	win = WinApp::GetInstance();
@@ -60,10 +61,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 	//DirectSound初期化
-	directSound = new DirectSound();
-	directSound->Initialize(win);
+	//directSound = new DirectSound();
+	//directSound->Initialize(win);
+	//XAudio2初期化
+	MyXAudio2* XAudio2 = new MyXAudio2();
+	XAudio2->Initialize();
+	int Sound=XAudio2->LoadAudio(L"./Resources/mokugyo.wav");
+	int Sound2=XAudio2->LoadAudio(L"./Resources/fanfare.wav");
 
-	directSound->LoadFile(DirectSound::SoundFile::TestBGM,L"./Resources/mokugyo.wav");
+	//directSound->LoadFile(DirectSound::SoundFile::TestBGM,L"./Resources/mokugyo.wav");
 
 	POINT MouseCurcor;
 	int PAN=0;
@@ -85,20 +91,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// ゲームシーンの毎フレーム処理
 		gameScene->Update();
 
-		GetCursorPos(&MouseCurcor);
-		MouseCurcor.x -= 640;//画面の中心を0にしたい
-		PAN = MouseCurcor.x*10;
-		if (PAN > 10000) {
-			PAN = 10000;
-		} else if (PAN < -10000) {
-			PAN = -10000;
-		}
-		//DSBPAN_LEFT -10000 右チャンネルが100デシベル分減衰する　右が無音になる
-		//DSBPAN_RIGHT 10000 左チャンネルが100デシベル分減衰する　左が無音になる
-		//DSBPAN_CENTER 0 両方のチャンネルから音が出る
-		directSound->SetPan(DirectSound::SoundFile::TestBGM, PAN);
-		//再生
-		directSound->PlayAudio(DirectSound::SoundFile::TestBGM, 1);
+		XAudio2->Play(Sound);
+		XAudio2->Play(Sound2);
 		
 
 		// 軸表示の更新
@@ -124,7 +118,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// 各種解放
 	SafeDelete(gameScene);
 	audio->Finalize();
-	delete directSound;
+	//delete directSound;
+	XAudio2->Release();
 	// ImGui解放
 	imguiManager->Finalize();
 

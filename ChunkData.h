@@ -13,4 +13,5 @@ struct RiffChunk {
 struct FormatChunk {
 	Chunk chunk;//FormatChunk
 	WAVEFORMAT fmt;//波形フォーマット
+	//WORD wBitsPerSample; //ビット/サンプル
 };
